@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+    <meta charset="UTF-8">
+    <title>Gestor de Tarefas - Listagem</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css">
+    </head>
+    <body>
+        <div th:replace="fragmentos/fragmentos :: cabecalho"></div>
+        <div class="container">
+        	<h3>Listagem de Tarefas</h3>
+        	<a href="/tarefas/inserir" class="btn btn-success">Inserir nova tarefa</a>
+        	<div th:each="tarefa: ${tarefas}" style="margin: 10px">
+        		<div class="card bg-light mb-3">
+        			<div class="card-header" th:text="${tarefa.titulo}"></div>
+        			<div class="card-body">
+        				<p class="card-text" th:text="${tarefa.descricao}"></p>
+        				<p class="card-text" th:text="${'Data de expiração: ' + #dates.format(tarefa.dataExpiracao,'dd/MM/yyyy')}"></p>
+        			</div>
+        			<div class="card-footer bg-light">
+        				<a th:href="@{/tarefas/alterar/{id}(id=${tarefa.id})}">Alterar</a>
+        				<a th:href="@{/tarefas/apagar/{id}(id=${tarefa.id})}">Apagar</a>
+        			</div>
+        		</div>
+        	</div>
+        </div>
+    </body>
+</html>
