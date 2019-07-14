@@ -2,12 +2,12 @@ package com.irmasantos.trainning.istgestortarefas.controller;
 
 import java.util.Date;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.irmasantos.trainning.istgestortarefas.model.Tarefa;
+import com.irmasantos.trainning.istgestortarefas.model.Utilizador;
 import com.irmasantos.trainning.istgestortarefas.repository.TarefasRepository;
+import com.irmasantos.trainning.istgestortarefas.service.UtilizadoresService;
 
 @Controller
 @RequestMapping("/tarefas")
@@ -23,12 +25,16 @@ public class TarefasController {
 
 	@Autowired
 	private TarefasRepository tarefaRepository;
+	
+	@Autowired
+	private UtilizadoresService utilizadoresService;
 
 	@GetMapping("/listar")
-	public ModelAndView listar() {
+	public ModelAndView listar(HttpServletRequest request) {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("tarefas/listar");
-		mv.addObject("tarefas", tarefaRepository.findAll());
+		String emailUtilizador = request.getUserPrincipal().getName();
+		mv.addObject("tarefas", tarefaRepository.carregaTarefasPorUtilizador(emailUtilizador));
 		return mv;
 	}
 	
@@ -47,7 +53,7 @@ public class TarefasController {
 //	}
 	
 	@PostMapping("/inserir")
-	public ModelAndView inserir(@Valid Tarefa tarefa, BindingResult result) {
+	public ModelAndView inserir(@Valid Tarefa tarefa, BindingResult result, HttpServletRequest request) {
 		
 		ModelAndView mv = new ModelAndView();
 		
@@ -61,6 +67,9 @@ public class TarefasController {
 			mv.setViewName("/tarefas/inserir");
 			mv.addObject(tarefa);
 		} else {
+			String emailUtilizador = request.getUserPrincipal().getName();
+			Utilizador utilizadorLogado = utilizadoresService.encontrarPorEmail(emailUtilizador);
+			tarefa.setUtilizador(utilizadorLogado);
 			tarefaRepository.save(tarefa);
 			mv.setViewName("redirect:/tarefas/listar");
 		}
